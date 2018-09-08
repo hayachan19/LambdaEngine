@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTK.NETCore" Version="1.1.2749.6433" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AssimpNet">
+      <HintPath>..\..\..\..\..\Desktop\assimp-net-netstandard\AssimpNet\bin\Release\netstandard2.0\AssimpNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo f | xcopy /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Game\bin\Debug\netcoreapp2.0\$(TargetFileName)&quot;&#xD;&#xA;echo f | xcopy /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Game\$(TargetFileName)&quot;" />
+  </Target>
+
+  <Import Project="..\Common\Common.projitems" Label="Shared" />
+
+</Project>

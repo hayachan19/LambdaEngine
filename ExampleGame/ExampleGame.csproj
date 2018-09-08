@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug\netstandard2.0\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Core">
+      <HintPath>..\Core\bin\Debug\netstandard2.0\Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Models\" />
+    <Folder Include="Code\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\Shaders\ShaderList.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo f | xcopy /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Game\bin\Debug\netcoreapp2.0\$(TargetFileName)&quot;&#xD;&#xA;echo f | xcopy /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Game\$(TargetFileName)&quot;" />
+  </Target>
+
+</Project>

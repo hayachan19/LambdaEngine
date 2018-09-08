@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Game": {
+      "commandName": "Project",
+      "commandLineArgs": "-game ExampleGame -render opengl33 -res 1280x720x32@60"
+    }
+  }
+}
