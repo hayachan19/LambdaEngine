@@ -7,6 +7,10 @@ General flow of the program relies on the Core - sort of a communication layer b
 
 At this stage the project is more of a mishmash made of reflection and OpenGL experiments, with actual game engine elements being rough drafts.
 
+## Compilation note
+Visual Studio doesn't use relative paths for compiled assemblies, so you have to build everything and replace broken references. Could use a diagram for that...
+OpenGL renderer relies on AssimpNet that was repackaged for .Net Standard, available here https://github.com/mellinoe/assimp-net.
+
 ## Things to do that could be considered milestones
 * Basic OpenGL 3.3 plugin
 * Core functionality that can load maps with dynamic objects
