@@ -1,41 +1,14 @@
-﻿using OpenTK;
-using System;
-using System.Xml;
+﻿using System;
+using OpenTK; //NOTE: We need that for window creation, later we could try creating a window via native methods and then hook to it. Or just adapt OpenTK window later.
 
-//core
-//examplegame
-//game ? change name?
-//renderer
-
-//example calls core.putThing
-//core sends to game something but what? so far it was game pulling things from core
-//game adds Thing to the list, and calls renderer to draw it
-
-//maybe game overlooks variables in game? the game itself would hold things like physics and stuff
-
-
-//examplegame uses templates from core, actor etc
-//core also does communication right
-//so for shaders
-/*
- example provides own shaders
- core has a function that passes it to main
- example during init calls SendShaders from shader class of core, that could be automated if there's such need
- SendShaders reads xml and returns shaders to public variable of class
- !!!make sure the order is right!!! renderer sends shaders to gl init
- magic happens and we're ready to go
-
- */
-
-using static Game.ModuleLoader;
-namespace Game
+namespace Runtime
 {
     /// <summary>
-/// TODO: proper summary
-/// TODO: Fix those namespaces plz
-/// TODO: Clean up document blah blah
-/// TODO: Framework vs not-framework type name debacle, time to settle it
-/// </summary>
+    /// TODO: proper summary
+    /// TODO: Fix those namespaces plz
+    /// TODO: Clean up document blah blah
+    /// TODO: Framework vs not-framework type name debacle, time to settle it
+    /// </summary>
     class Program
     {
         public static Type coreModule;
@@ -43,41 +16,31 @@ namespace Game
 
         public struct Resolution
         {
-            public UInt16 width;
-            public UInt16 height;
-            public UInt16 depth;
-            public UInt16 refresh;
+            public ushort Width, Height, Depth, RefreshRate;
         }
         static DisplayDevice displayDevice = null;
 
-        static void Main(String[] args)
+        static void Main(string[] args) //TODO: Parameter count?
         {
-            //AppDomain.CurrentDomain.UnhandledException += Common.ErrorHandler.CurrentDomain_UnhandledException;
+            //AppDomain.CurrentDomain.UnhandledException += Common.ErrorHandler.CurrentDomain_UnhandledException; //NOTE: Something's not right with it.
 
             //load core and expose
             //but we don't need core
             // coreModule = LoadModuleAndExtractClass("Core.dll", "Main");
 
-
-
-
-
-            // int width; int height;
-
             displayDevice = GetPrimaryDisplay();
-            ParseArguments(args, out Resolution res, out Renderer.RenderAPI renderer, out Byte major, out Byte minor);
+            ParseArguments(args, out Resolution res, out Renderer.RenderAPI renderer, out byte major, out byte minor);
             //gameModule = ModuleLoader.LoadModuleAndExtractClass("ExampleGame", "Main");
-            ModuleLoader.ExtractMethodAndExecute(gameModule, "Init", new string[] { }); //put game init after window init
-            //ModuleLoader.ExtractClass()
-            switch (renderer)
+            //ModuleLoader.ExtractMethodAndExecute(gameModule, "Init", new string[] { }); //put game init after window init
+            ModuleLoader.ExtractMethod<string>(gameModule, "Init")(new string[] { }); //put game init after window init
+            switch (renderer) //This exists mostly for making window and event subscription.
             {
                 case Renderer.RenderAPI.OpenGL:
-                    using (OpenTKWindow main = new OpenTKWindow(res.width, res.height, GameWindowFlags.Default, displayDevice, Renderer.RenderAPI.OpenGL, major, minor))
+                    using (OpenTKWindow main = new OpenTKWindow(res.Width, res.Height, GameWindowFlags.Default, displayDevice, Renderer.RenderAPI.OpenGL, major, minor))
                     {
-#error If you need to run this, fix namespaces first.
-                        main.UpdateFrame += GameLoop.MainLoop; //NOTE: Not gonna work due to namespace messup
+                        main.UpdateFrame += GameLoop.MainLoop;
                         main.RenderFrame += Renderer.RenderFrame;
-                        main.Run(200, res.refresh);
+                        main.Run(200, res.RefreshRate);
                     }
                     break;
                 case Renderer.RenderAPI.Vulkan:
@@ -88,41 +51,35 @@ namespace Game
                     throw new NotImplementedException("Software mode not implemented.");
                 default:
                     break;
-            }          
+            }
         }
 
         private static DisplayDevice GetPrimaryDisplay()
         {
             DisplayDevice currentDisplay = DisplayDevice.GetDisplay(DisplayIndex.Default);
-            for (SByte display = -1; display < 8; display++)
+            for (sbyte display = -1; display < 8; display++)
             {
                 currentDisplay = DisplayDevice.GetDisplay((DisplayIndex)display);
-                if (currentDisplay == null)
-                {
-                    break;
-                }
-
-                if (currentDisplay.IsPrimary)
-                {
-                    break;
-                }
+                if (currentDisplay == null) break;
+                if (currentDisplay.IsPrimary) break;
             }
             return currentDisplay;
         }
         //TODO: Separate?
         public static void ParseArguments(String[] args, out Resolution res, out Renderer.RenderAPI renderer, out Byte major, out Byte minor)
         {
+            //Defaults
             renderer = Renderer.RenderAPI.Software;
             major = 0;
             minor = 0;
-            res.width = 640;
-            res.height = 480;
-            res.depth = 16;
-            res.refresh = 60;
+            res.Width = 640;
+            res.Height = 480;
+            res.Depth = 16;
+            res.RefreshRate = 60;
 
-            UInt16 currentArg = 0;
+            ushort currentArg = 0;
 
-            foreach (String arg in args)
+            foreach (string arg in args)
             {
                 if (currentArg + 1 == args.Length)
                 {
@@ -135,7 +92,7 @@ namespace Game
                     switch (arg.TrimStart('-'))
                     {
                         case "game":
-                            gameModule = LoadModuleAndExtractClass(nextArg, "Main");
+                            gameModule = ModuleLoader.LoadModuleAndExtractClass(nextArg, "Main");
                             break;
                         case "render":
                             /*switch (nextArg)
@@ -177,34 +134,34 @@ namespace Game
                                 break;
                             }
 
-                            Boolean validResolution = false;
+                            bool validResolution = false;
                             Resolution requestedResolution = new Resolution
                             {
-                                width = UInt16.Parse(resString[0]),
-                                height = UInt16.Parse(resString[1]),
-                                depth = UInt16.Parse(resString[2]),
-                                refresh = UInt16.Parse(resString[3])
+                                Width = ushort.Parse(resString[0]),
+                                Height = ushort.Parse(resString[1]),
+                                Depth = ushort.Parse(resString[2]),
+                                RefreshRate = ushort.Parse(resString[3])
                             };
                             foreach (DisplayResolution testedResolution in displayDevice.AvailableResolutions)
                             {
-                                bool w = false;
+                                /*bool w = false;
                                 bool h = false;
                                 bool d = false;
                                 bool r = false;
                                 bool rf = false;
-                                UInt16 re = (UInt16)testedResolution.RefreshRate;
+                                UInt16 re = (UInt16)testedResolution.RefreshRate;*/
 
-                                if (requestedResolution.width.Equals(Convert.ToUInt16(testedResolution.Width)) ||
-                                 requestedResolution.height.Equals(Convert.ToUInt16(testedResolution.Height)) ||
-                                 requestedResolution.depth.Equals(Convert.ToUInt16(testedResolution.BitsPerPixel)) ||
-                                 requestedResolution.refresh.Equals(Convert.ToUInt16(testedResolution.RefreshRate)))
+                                if (requestedResolution.Width.Equals(Convert.ToUInt16(testedResolution.Width)) ||
+                                 requestedResolution.Height.Equals(Convert.ToUInt16(testedResolution.Height)) ||
+                                 requestedResolution.Depth.Equals(Convert.ToUInt16(testedResolution.BitsPerPixel)) ||
+                                 requestedResolution.RefreshRate.Equals(Convert.ToUInt16(testedResolution.RefreshRate)))
                                 //if (requestedResolution.width.Equals(testedResolution.Width) && requestedResolution.height.Equals(testedResolution.Height) && requestedResolution.depth.Equals(testedResolution.BitsPerPixel) && requestedResolution.refresh.Equals((UInt16)testedResolution.RefreshRate))
                                 {
                                     validResolution = true;
-                                    res.width = requestedResolution.width;
-                                    res.height = requestedResolution.height;
-                                    res.depth = requestedResolution.depth;
-                                    res.refresh = requestedResolution.refresh;
+                                    res.Width = requestedResolution.Width;
+                                    res.Height = requestedResolution.Height;
+                                    res.Depth = requestedResolution.Depth;
+                                    res.RefreshRate = requestedResolution.RefreshRate;
                                 }
                                 if (validResolution)
                                 {
@@ -215,7 +172,6 @@ namespace Game
                             {
                                 throw new Exception("Invalid resolution.");
                             }
-
                             break;
                         default:
                             break;

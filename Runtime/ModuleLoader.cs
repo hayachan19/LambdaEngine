@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Game
+namespace Runtime
 {
     /// <summary>
     /// This class loads external libraries, and hopefully doesn't tank the performance.
-    /// TODO: You can execute methods by simply adding (), just like in JavaScript. Execute methods probably can go once they get tested.
+    /// TODO: Test executing methods with () and delete execute methods.
     /// TODO: Check if there's anything more to do with arguments, delegates are pretty rigid so anything can be helpful.
     /// </summary>
     class ModuleLoader
@@ -70,6 +70,7 @@ namespace Game
             return ExtractClass(LoadModule(dllName), className);
         }
 
+        /*
         public static void ExtractMethodAndExecute(Type module, string methodName)
         {
             ExtractMethod(module, methodName)();
@@ -83,15 +84,16 @@ namespace Game
         public static void ExtractMethodAndExecute<T, Y>(Type module, string methodName, T[] args, Y[] results)
         {
             ExtractMethod<T, Y>(module, methodName)(args, ref results);
-        }
+        }*/
+        
     }
     /// <summary>
     /// This class/type does absolutely nothing, and only serves to shut up VS when no arguments are providen.
     /// Workaround, sure, can't find a way to have result-only function with same signature.
     /// TODO: What did he mean by this?
     /// </summary>
-    class Nil
+   /* class Nil
     {
         //hack: obamaCmon
-    }
+    }*/
 }

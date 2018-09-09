@@ -1,18 +1,14 @@
-﻿using OpenTK;
+﻿using System;
+using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
-using OpenTK.Audio.OpenAL;
-using OpenTK.Audio;
 
-namespace Game
+namespace Runtime
 {
     /// <summary>
     /// Makes OpenTK window for OpenGL
-    /// TODO: Equivalents for other renderers
+    /// TODO: Equivalents for other renderers, or recycle
     /// </summary>
-    
+
     class OpenTKWindow : OpenTK.GameWindow
     {
         public OpenTKWindow(UInt16 width, UInt16 height, GameWindowFlags window, DisplayDevice display, Renderer.RenderAPI render) : this(width, height, window, display, render, 3, 3)
@@ -33,7 +29,7 @@ namespace Game
             }
             else if (major < 3 || (major == 3 && minor < 3))
             {
-                throw new Exception("Requested version of OpenGL is not supported, minimum is 3.3.");
+                throw new Exception("Requested version of OpenGL is not supported, minimum is 3.3."); //We don't deal with legacy for now
             }
             else
             {

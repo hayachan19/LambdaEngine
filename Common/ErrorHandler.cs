@@ -13,10 +13,11 @@ namespace Common
     {
         public static void CurrentDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e) => Report(e.ExceptionObject);
 
-        public static void Report(Object ex)
+        public static void Report(object ex)
         {
-            Console.WriteLine("An exception has occured: ");
-            Console.WriteLine(ex.ToString());
+            Logger.Exception(ex);
+            //Console.WriteLine("An exception has occured: ");
+            //Console.WriteLine(ex.ToString());
             Console.WriteLine("Press Enter to terminate.");
             Console.ReadLine();
             Console.WriteLine("Exiting.");

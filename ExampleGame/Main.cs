@@ -8,7 +8,7 @@ namespace ExampleGame
 {
     public class Main
     {
-        static String GameName = "Example";
+        static string GameName = "Example";
 
         public static void Init(string[] test)
         {

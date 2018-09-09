@@ -1,14 +1,15 @@
-﻿namespace Game
+﻿namespace Runtime
 {
     /// <summary>
     /// This class handles renderers. There's some OpenTK stuff that should be somewhere else, like that repetitive shader loader.
     /// TODO: Analyse and clean up
-    /// NOTE: Unsure if it's possible to keep this class renderer agnostic, since each one has it's own way of creating and controlling the window.
+    /// NOTE: Unsure if it's possible to keep this class renderer agnostic, since each wrapper has it's own way of creating and controlling the window.
     /// NOTE: It isn't 1990s anymore, we only have two (three) major players and one fancy stuff. This program won't even run on anything that uses something else so why bother.
+    /// Library based selection needs native window to hook to and create context, something for later.
     /// </summary>
     class Renderer
     {
-        public enum RenderAPI { Software, OpenGL, Vulkan, DirectX } //obamaCmon //TODO: Either we hard-code every renderer (which is dumb), or settle for simply providing the lib name. Check the notes.
+        public enum RenderAPI { Software, OpenGL, Vulkan, DirectX } //obamaCmon
         public static System.Reflection.Assembly renderPlugin;
         public static System.Type renderClass;
         public static ModuleLoader.TemporaryDelegate renderingLoop;
@@ -31,7 +32,7 @@
                     renderClass = ModuleLoader.ExtractClass(renderPlugin, "Main");
 
 //todo: candidate for merging
-                    ModuleLoader.ExtractMethodAndExecute(renderClass, "Init");
+                    ModuleLoader.ExtractMethod(renderClass, "Init")();
                     //ModuleLoader.ExtractMethodAndExecute(renderClass, "")
                     renderingLoop = ModuleLoader.ExtractMethod(renderClass, "Draw");
                     break;
@@ -41,9 +42,11 @@
                     break;
                 case RenderAPI.Software:
                 default:
-                    throw new System.Exception("Failure while initializing the renderer");
+                    throw new System.Exception("Failure while initializing the renderer"); //huh?
             }
         }
+        //TODO: Move to Core? Dev calls LoadShaders from Core, it analyzes shaders and tells runtime there's shaders to do
+        //So this should be scanning for shaders and sending them to appropriate facility
 //todo: this side of the renderer should have separate classes for each renderer containing things like that, keep away from plugin since why would it have a xml parser. actually it's about the shadertype type, overrides should be the soluttion
         public static System.Collections.Generic.Dictionary<System.String, System.Collections.Generic.Dictionary<OpenTK.Graphics.OpenGL.ShaderType, System.String>> GetShaders(System.Xml.XmlDocument definitionFile)
         {
@@ -86,20 +89,17 @@
             return shaderPackage;
         }
         // private static Dictionary<string, Shader> shaders;
+
         #region Renderer initializers
         public static void Initialize_OpenGL(System.Object sender, System.EventArgs e)
         {
-            // ModuleLoader.ExtractMethodAndExecute(Program.gameModule, )
-            //var van = Core.IO.ShaderParser.parsedShaders;
-            //ModuleLoader.ExtractMethodAndExecute(renderClass, "Initialize");
             ModuleLoader.ExtractMethod(renderClass, "Initialize")();
-            System.Int16 a = 1;
-            a++;
         } //late init, after context is established
         public static void Initialize_Vulkan() { }
         public static void Initialize_DirectX() { }
         public static void Initialize_Software() { }
         #endregion
+        //OpenTK window
         public static void RenderFrame(System.Object sender, OpenTK.FrameEventArgs e)
         {
             if (Core.Main.initDone) {
@@ -109,10 +109,6 @@
                 main.SwapBuffers();
             }          
         }
-
-
-
-
         //core loads map
         //sends all data somewhere
         //renderer on each turn reads that data and renders it
