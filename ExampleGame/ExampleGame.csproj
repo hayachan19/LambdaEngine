@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="echo f | xcopy /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Game\bin\Debug\netcoreapp2.0\$(TargetFileName)&quot;&#xD;&#xA;echo f | xcopy /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Game\$(TargetFileName)&quot;" />
+    <Exec Command="echo f | xcopy /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Runtime\bin\$(ConfigurationName)\netcoreapp2.0\$(TargetFileName)&quot;" />
   </Target>
 
 </Project>
